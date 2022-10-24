@@ -9,6 +9,7 @@ use std::io::BufWriter;
 use serde_json::{Value};
 use std::{thread, time::Duration};
 use process_path::get_executable_path;
+use wallpaper;
 
 use std::ffi::{CString, c_void};
 fn setwallpaper(wallpaper : &str) {
@@ -34,8 +35,9 @@ fn main() {
     } else {
         panic!("");
     };
-    println!("{:?}", path.parent());
+
     let imgfile = path.parent().unwrap().join(IMAGEFILE);
+    println!("{:?}", imgfile);
     loop {
         let mut oldurl : String;
         let res = reqwest::blocking::get(APOD_URL);
@@ -53,11 +55,11 @@ fn main() {
                 println!("Received error {}", e);
             } else {
                 println!("received file {} - > res {:?}", v[URL_KEY], res);
-                let file = File::options().write(true).open(imgfile.clone()).unwrap();
-                let mut writer = BufWriter::new(file);
-                if let e = res.unwrap().copy_to(&mut writer) {
-                    setwallpaper(imgfile.to_str().unwrap());
+                {
+                    let mut ifile = File::create(imgfile.clone()).unwrap();
+                    res.unwrap().copy_to(&mut ifile).unwrap();
                 }
+                wallpaper::set_from_path(imgfile.to_str().unwrap()).unwrap();
             }
         }
         thread::sleep(Duration::from_secs(WAIT_TIME_SEC));
