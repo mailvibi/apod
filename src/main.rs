@@ -1,28 +1,9 @@
-extern crate reqwest;
-extern crate serde_json;
-extern crate winapi;
-
-use winapi::um::winuser::{SystemParametersInfoA, SPIF_UPDATEINIFILE, SPI_SETDESKWALLPAPER};
-
+use reqwest;
 use std::{fs::File, path::PathBuf};
-use std::io::BufWriter;
 use serde_json::{Value};
 use std::{thread, time::Duration};
 use process_path::get_executable_path;
 use wallpaper;
-
-use std::ffi::{CString, c_void};
-fn setwallpaper(wallpaper : &str) {
-    println!("setting wallpaper {}", wallpaper);
-    let image_path = CString::new(wallpaper).unwrap();
-    unsafe {
-        SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, 
-            image_path.as_ptr() as *mut c_void,
-            SPIF_UPDATEINIFILE);
-    }
-}
-
-
 
 fn main() {
     const APOD_URL : &str = "https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY";
